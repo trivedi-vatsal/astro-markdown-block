@@ -1,6 +1,6 @@
 {
   "name": "astro-markdown-block",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Markdown block for Astro and React: switch between rendered preview and raw source, toggle word wrap, and copy the Markdown.",
   "keywords": [
     "astro",
