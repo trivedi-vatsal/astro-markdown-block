@@ -1,0 +1,287 @@
+---
+import {
+  authorUrl,
+  homePath,
+  licenseUrl,
+  npmUrl,
+  pkgInfo,
+  repoUrl,
+} from '../lib/site'
+import Icon from '../components/Icon.astro'
+import 'astro-markdown-block/styles.css'
+import '../styles/site.css'
+
+interface Props {
+  title: string
+  description: string
+  canonical: string
+  jsonLd?: Record<string, unknown>
+  current?: Page
+}
+
+type Page = 'home' | 'playground' | 'examples' | 'api'
+
+const { title, description, canonical, jsonLd, current = 'home' } = Astro.props
+const home = homePath()
+const pages: [Page, string, string][] = [
+  ['playground', 'Playground', `${home}playground/`],
+  ['examples', 'Examples', `${home}examples/`],
+  ['api', 'API', `${home}api/`],
+]
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      try {
+        const stored = localStorage.getItem('theme')
+        const dark = stored
+          ? stored === 'dark'
+          : matchMedia('(prefers-color-scheme: dark)').matches
+        document.documentElement.classList.add(dark ? 'dark' : 'light')
+      } catch {
+        document.documentElement.classList.add('light')
+      }
+    </script>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="author" content="Vatsal Trivedi" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <link rel="icon" href={`${home}favicon.svg`} type="image/svg+xml" />
+    {jsonLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    )}
+  </head>
+  <body>
+    <a class="skip" href="#main">
+      Skip to content
+    </a>
+    <header class="nav">
+      <div class="wrap nav-inner">
+        <a class="brand-name" href={home}>
+          {pkgInfo.name}
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          {pages.map(([page, label, href]) => (
+            <a href={href} aria-current={current === page ? 'page' : undefined}>
+              {label}
+            </a>
+          ))}
+        </nav>
+        <div class="nav-tools">
+          <a
+            class="icon-btn"
+            href={npmUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="npm (opens in a new tab)"
+            title="npm"
+          >
+            <Icon name="npm" />
+          </a>
+          <a
+            class="icon-btn"
+            href={repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub (opens in a new tab)"
+            title="GitHub"
+          >
+            <Icon name="github" />
+          </a>
+          <button
+            id="theme"
+            type="button"
+            class="theme-toggle"
+            aria-label="Switch to dark mode"
+            aria-pressed="false"
+          >
+            <svg
+              class="icon-sun"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+            </svg>
+            <svg
+              class="icon-moon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"></path>
+            </svg>
+          </button>
+          <details class="nav-menu">
+            <summary aria-label="Menu">
+              <svg
+                class="icon-menu"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M4 7h16M4 12h16M4 17h16"></path>
+              </svg>
+              <svg
+                class="icon-close"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M6 6l12 12M18 6 6 18"></path>
+              </svg>
+            </summary>
+            <nav aria-label="Primary">
+              {pages.map(([page, label, href]) => (
+                <a
+                  href={href}
+                  aria-current={current === page ? 'page' : undefined}
+                >
+                  {label}
+                </a>
+              ))}
+            </nav>
+          </details>
+        </div>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <a class="footer-name" href={home}>
+          {pkgInfo.name}
+        </a>
+        <ul class="footer-links">
+          <li>
+            <a href={npmUrl} target="_blank" rel="noopener noreferrer">
+              <Icon name="npm" /> npm
+            </a>
+          </li>
+          <li>
+            <a href={repoUrl} target="_blank" rel="noopener noreferrer">
+              <Icon name="github" /> GitHub
+            </a>
+          </li>
+          <li>
+            <a href={licenseUrl} target="_blank" rel="noopener noreferrer">
+              MIT License
+            </a>
+          </li>
+          <li>
+            <a href={authorUrl} target="_blank" rel="noopener noreferrer">
+              Vatsal Trivedi
+            </a>
+          </li>
+        </ul>
+      </div>
+    </footer>
+
+    <script>
+      import { copyText } from '../lib/copy'
+
+      const themeButton = document.getElementById('theme')
+
+      function syncThemeButton() {
+        if (!(themeButton instanceof HTMLButtonElement)) return
+        const dark = document.documentElement.classList.contains('dark')
+        themeButton.setAttribute('aria-pressed', String(dark))
+        themeButton.setAttribute(
+          'aria-label',
+          dark ? 'Switch to light mode' : 'Switch to dark mode',
+        )
+      }
+
+      function applyTheme(dark: boolean) {
+        document.documentElement.classList.toggle('dark', dark)
+        document.documentElement.classList.toggle('light', !dark)
+        try {
+          localStorage.setItem('theme', dark ? 'dark' : 'light')
+        } catch {
+          // Storage can be blocked. The class still switches for this visit.
+        }
+        syncThemeButton()
+      }
+
+      syncThemeButton()
+      themeButton?.addEventListener('click', () => {
+        applyTheme(!document.documentElement.classList.contains('dark'))
+      })
+
+      document
+        .querySelectorAll<HTMLButtonElement>('[data-copy-target]')
+        .forEach((button) => {
+          button.addEventListener('click', async () => {
+            const id = button.dataset.copyTarget
+            const target = id ? document.getElementById(id) : null
+            const text =
+              target instanceof HTMLTextAreaElement
+                ? target.value
+                : (target?.textContent ?? '')
+            if (!(await copyText(text))) return
+            if (!button.dataset.label) {
+              button.dataset.label = (button.textContent ?? 'Copy').trim()
+            }
+            if (button.dataset.timer) {
+              window.clearTimeout(Number(button.dataset.timer))
+            }
+            button.textContent = 'Copied'
+            button.dataset.timer = String(
+              window.setTimeout(() => {
+                button.textContent = button.dataset.label || 'Copy'
+              }, 1200),
+            )
+          })
+        })
+
+      const menu = document.querySelector('.nav-menu')
+      if (menu instanceof HTMLDetailsElement) {
+        const summary = menu.querySelector('summary')
+        menu.addEventListener('toggle', () => {
+          summary?.setAttribute('aria-label', menu.open ? 'Close menu' : 'Menu')
+        })
+        menu.querySelectorAll('a').forEach((link) => {
+          link.addEventListener('click', () => {
+            menu.open = false
+          })
+        })
+        document.addEventListener('click', (event) => {
+          if (!menu.open) return
+          if (event.target instanceof Node && menu.contains(event.target)) {
+            return
+          }
+          menu.open = false
+        })
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && menu.open) menu.open = false
+        })
+      }
+    </script>
+  </body>
+</html>
