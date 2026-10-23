@@ -92,6 +92,17 @@ pnpm typecheck
 
 Requires Node 22.23.4 or later (see `.nvmrc`).
 
+## Publishing
+
+The first release has to be published from a machine that is logged in to npm, because npm will not create a brand new package from GitHub Actions:
+
+```sh
+npm login
+npm publish
+```
+
+After that, open the package on npmjs.com, go to Settings, Trusted Publisher, and allow `.github/workflows/publish.yml` from `trivedi-vatsal/astro-markdown-block`. Later releases are `git tag v0.2.0 && git push origin v0.2.0`.
+
 ## License
 
 MIT
