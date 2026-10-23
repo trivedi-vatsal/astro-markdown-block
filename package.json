@@ -1,0 +1,70 @@
+{
+  "name": "astro-markdown-block",
+  "version": "0.1.0",
+  "description": "A Markdown block for Astro and React: switch between rendered preview and raw source, toggle word wrap, and copy the Markdown.",
+  "keywords": [
+    "astro",
+    "withastro",
+    "astro-component",
+    "react",
+    "markdown",
+    "preview",
+    "copy",
+    "mdx"
+  ],
+  "homepage": "https://vatsal.xyz/astro-markdown-block/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trivedi-vatsal/astro-markdown-block.git"
+  },
+  "bugs": "https://github.com/trivedi-vatsal/astro-markdown-block/issues",
+  "author": {
+    "name": "trivedi-vatsal",
+    "url": "https://github.com/trivedi-vatsal"
+  },
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier -w . --cache",
+    "format:check": "prettier -c .",
+    "site:dev": "pnpm build && pnpm --filter site dev",
+    "site:build": "pnpm build && pnpm --filter site build",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "react-markdown": "^10.1.0",
+    "rehype-external-links": "^3.0.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "prettier": "^3",
+    "prettier-plugin-astro": "^1",
+    "react": "^19",
+    "tsup": "^9",
+    "typescript": "^5"
+  },
+  "packageManager": "pnpm@11.15.1",
+  "engines": {
+    "node": ">=18"
+  }
+}

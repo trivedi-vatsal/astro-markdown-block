@@ -1,0 +1,340 @@
+---
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { gzipSync } from 'node:zlib'
+import { Code } from 'astro:components'
+import { MarkdownBlock } from 'astro-markdown-block'
+import 'astro-markdown-block/styles.css'
+import '../styles/site.css'
+import intro from '../samples/intro.md?raw'
+import gfm from '../samples/gfm.md?raw'
+import prompt from '../samples/prompt.md?raw'
+
+const root = resolve(process.cwd(), '..')
+const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'))
+
+function size(file: string) {
+  const bytes = readFileSync(resolve(root, 'dist', file))
+  const kb = (n: number) => `${(n / 1024).toFixed(1)} KB`
+  return `${kb(bytes.length)} (${kb(gzipSync(bytes).length)} gzip)`
+}
+
+const npmUrl = `https://www.npmjs.com/package/${pkg.name}`
+const repoUrl = pkg.repository.url.replace(/^git\+/, '').replace(/\.git$/, '')
+
+const details = [
+  ['Version', pkg.version],
+  ['License', pkg.license],
+  ['Module format', 'ESM only, with TypeScript types'],
+  ['JavaScript', size('index.js')],
+  ['CSS', size('styles.css')],
+  ['Peer dependencies', Object.keys(pkg.peerDependencies).join(', ')],
+  ['Dependencies', Object.keys(pkg.dependencies).join(', ')],
+]
+
+const install = `npm install ${pkg.name}
+
+# Astro needs the React integration
+npx astro add react`
+
+const mdxUsage = `---
+title: My post
+---
+
+import { MarkdownBlock } from 'astro-markdown-block'
+import 'astro-markdown-block/styles.css'
+import prompt from './prompt.md?raw'
+
+<MarkdownBlock client:visible title="Prompt" source={prompt} />`
+
+const astroUsage = `---
+import { MarkdownBlock } from 'astro-markdown-block'
+import 'astro-markdown-block/styles.css'
+import prompt from '../content/prompt.md?raw'
+---
+
+<MarkdownBlock client:visible title="Prompt" source={prompt} />`
+
+const themeUsage = `.brand {
+  --amb-accent: #7c3aed;
+  --amb-accent-fg: #ffffff;
+  --amb-border: #ddd6fe;
+  --amb-toolbar-bg: #f5f3ff;
+  --amb-radius: 0.75rem;
+}`
+
+const props = [
+  ['source', 'string', 'required', 'The Markdown to render and copy.'],
+  ['title', 'string', '', 'Shown in the toolbar before the mode.'],
+  [
+    'defaultMode',
+    "'preview' | 'markdown'",
+    "'preview'",
+    'Which view shows first.',
+  ],
+  ['height', 'string | number', "'24rem'", 'Height of the scrolling body.'],
+  [
+    'remarkPlugins',
+    'PluggableList',
+    '[remarkGfm]',
+    'Replaces the default remark plugins.',
+  ],
+  [
+    'rehypePlugins',
+    'PluggableList',
+    'external links in a new tab',
+    'Replaces the default rehype plugins.',
+  ],
+  [
+    'components',
+    'Components',
+    '',
+    'Custom renderers, passed to react-markdown.',
+  ],
+  [
+    'labels',
+    'Partial<Labels>',
+    '',
+    'Override preview, markdown, copy, copied, wrap.',
+  ],
+  ['className', 'string', '', 'Extra class on the root element.'],
+  [
+    'classNames',
+    'Partial<Record<Part, string>>',
+    '',
+    'Classes for root, toolbar, title, actions, button, body, preview, source.',
+  ],
+]
+
+const variables = [
+  ['--amb-bg', 'Background of the block'],
+  ['--amb-fg', 'Text color'],
+  ['--amb-muted', 'Secondary text, like the mode label'],
+  ['--amb-border', 'Borders and table lines'],
+  ['--amb-toolbar-bg', 'Toolbar and table header background'],
+  ['--amb-button-bg', 'Button background'],
+  ['--amb-button-hover', 'Button hover background'],
+  ['--amb-accent', 'Pressed wrap button and focus ring'],
+  ['--amb-accent-fg', 'Text on the accent color'],
+  ['--amb-code-bg', 'Inline code and code block background'],
+  ['--amb-link', 'Link color in the preview'],
+  ['--amb-radius', 'Corner radius'],
+  ['--amb-font-sans', 'Font for the toolbar and preview'],
+  ['--amb-font-mono', 'Font for the raw source'],
+]
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pkg.name}: Markdown preview, source, and copy for Astro</title>
+    <meta name="description" content={pkg.description} />
+    <script is:inline>
+      const stored = localStorage.getItem('theme')
+      const dark = stored
+        ? stored === 'dark'
+        : matchMedia('(prefers-color-scheme: dark)').matches
+      document.documentElement.classList.add(dark ? 'dark' : 'light')
+    </script>
+  </head>
+  <body>
+    <header class="nav">
+      <div class="wrap nav-inner">
+        <a class="brand-name" href="#top">
+          {pkg.name}
+        </a>
+        <nav>
+          <a href="#usage">Usage</a>
+          <a href="#props">Props</a>
+          <a href="#theming">Theming</a>
+          <a href={npmUrl}>npm</a>
+          <a href={repoUrl}>GitHub</a>
+          <button
+            id="theme"
+            type="button"
+            class="theme-toggle"
+            aria-label="Toggle dark mode"
+          >
+            <span class="sun">☀</span>
+            <span class="moon">☾</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top" class="wrap">
+      <section class="hero">
+        <p class="badge">v{pkg.version} · MIT</p>
+        <h1>Show Markdown both ways.</h1>
+        <p class="lede">
+          A Markdown block for Astro and React. Readers switch between the
+          rendered preview and the raw source, turn word wrap on or off, and
+          copy the Markdown exactly as written. Good for prompts, templates, and
+          snippets people are meant to paste somewhere else.
+        </p>
+        <MarkdownBlock client:load title="Release checklist" source={intro} />
+      </section>
+
+      <section>
+        <h2>Install</h2>
+        <Code code={install} lang="sh" theme="github-dark" />
+      </section>
+
+      <section id="usage">
+        <h2>Usage</h2>
+        <p>
+          Import your Markdown with <code>?raw</code> so you get the file as a
+          string, then pass it as <code>source</code>. It's a React component,
+          so it needs a <code>client:*</code> directive to make the buttons
+          work. <code>client:visible</code> is the cheapest choice for blocks
+          below the fold.
+        </p>
+        <h3>In MDX</h3>
+        <Code code={mdxUsage} lang="mdx" theme="github-dark" />
+        <h3>In an .astro page</h3>
+        <Code code={astroUsage} lang="astro" theme="github-dark" />
+      </section>
+
+      <section>
+        <h2>Examples</h2>
+
+        <h3>GitHub-flavored Markdown</h3>
+        <p>
+          Tables, task lists, strikethrough, and bare links work out of the box.
+          External links open in a new tab.
+        </p>
+        <MarkdownBlock
+          client:visible
+          title="Release lines"
+          source={gfm}
+          height="auto"
+        />
+
+        <h3>Start in source mode</h3>
+        <p>
+          Set <code>defaultMode="markdown"</code> when the raw text matters more
+          than how it looks, like a prompt.
+        </p>
+        <MarkdownBlock
+          client:visible
+          title="Review prompt"
+          source={prompt}
+          defaultMode="markdown"
+          height="14rem"
+        />
+
+        <h3>Your own theme and labels</h3>
+        <p>
+          Set the <code>--amb-*</code> variables on a class and pass it as{' '}
+          <code>className</code>. Labels can be changed for other languages or
+          wording.
+        </p>
+        <MarkdownBlock
+          client:visible
+          title="Themed"
+          source={prompt}
+          className="brand"
+          height="auto"
+          labels={{ preview: 'Rendered', markdown: 'Raw' }}
+        />
+      </section>
+
+      <section id="props">
+        <h2>Props</h2>
+        <div class="table">
+          <table>
+            <thead>
+              <tr>
+                <th>Prop</th>
+                <th>Type</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {props.map(([name, type, def, desc]) => (
+                <tr>
+                  <td>
+                    <code>{name}</code>
+                  </td>
+                  <td>
+                    <code>{type}</code>
+                  </td>
+                  <td>{def && <code>{def}</code>}</td>
+                  <td>{desc}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="theming">
+        <h2>Theming</h2>
+        <p>
+          The stylesheet is plain CSS with no Tailwind needed. It follows the
+          system dark mode, and a <code>.dark</code> or{' '}
+          <code>[data-theme="dark"]</code> on any ancestor turns dark mode on.
+          Override any variable on a class you pass as <code>className</code>:
+        </p>
+        <Code code={themeUsage} lang="css" theme="github-dark" />
+        <p>
+          Using Tailwind Typography? Pass{' '}
+          <code>{"classNames={{ preview: 'prose dark:prose-invert' }}"}</code>{' '}
+          to style the preview with it instead.
+        </p>
+        <div class="table">
+          <table>
+            <thead>
+              <tr>
+                <th>Variable</th>
+                <th>Controls</th>
+              </tr>
+            </thead>
+            <tbody>
+              {variables.map(([name, desc]) => (
+                <tr>
+                  <td>
+                    <code>{name}</code>
+                  </td>
+                  <td>{desc}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Package details</h2>
+        <dl class="details">
+          {details.map(([term, value]) => (
+            <div>
+              <dt>{term}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    </main>
+
+    <footer class="wrap footer">
+      <span>MIT © Vatsal Trivedi</span>
+      <span>
+        <a href={npmUrl}>npm</a> · <a href={repoUrl}>GitHub</a>
+      </span>
+    </footer>
+
+    <script>
+      document.getElementById('theme')?.addEventListener('click', () => {
+        const html = document.documentElement
+        const dark = !html.classList.contains('dark')
+        html.classList.toggle('dark', dark)
+        html.classList.toggle('light', !dark)
+        localStorage.setItem('theme', dark ? 'dark' : 'light')
+      })
+    </script>
+  </body>
+</html>

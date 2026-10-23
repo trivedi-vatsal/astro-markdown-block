@@ -1,0 +1,6 @@
+dist
+site/dist
+site/.astro
+pnpm-lock.yaml
+plan
+.screens
