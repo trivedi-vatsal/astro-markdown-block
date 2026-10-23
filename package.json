@@ -10,7 +10,11 @@
     "markdown",
     "preview",
     "copy",
-    "mdx"
+    "mdx",
+    "gfm",
+    "markdown-preview",
+    "copy-to-clipboard",
+    "react-markdown"
   ],
   "homepage": "https://vatsal.xyz/astro-markdown-block/",
   "repository": {

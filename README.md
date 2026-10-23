@@ -1,40 +1,58 @@
 # astro-markdown-block
 
-A Markdown block for Astro and React. Readers switch between the rendered preview and the raw source, turn word wrap on or off, and copy the Markdown exactly as written. Good for prompts, templates, and snippets people are meant to paste somewhere else.
+[![npm version](https://img.shields.io/npm/v/astro-markdown-block)](https://www.npmjs.com/package/astro-markdown-block)
+[![license](https://img.shields.io/npm/l/astro-markdown-block)](https://github.com/trivedi-vatsal/astro-markdown-block/blob/main/LICENSE)
+[![types](https://img.shields.io/badge/types-included-blue)](https://vatsal.xyz/astro-markdown-block/api/)
 
-**Demo and docs:** https://vatsal.xyz/astro-markdown-block/
+A Markdown block for Astro and React. Readers see the rendered Markdown, flip to the raw source, and copy it in one click. Good for prompts, READMEs, and snippets people paste somewhere else.
 
-- Preview and raw source in one block, with a toggle
-- Copy button with a fallback for browsers without the Clipboard API
-- GitHub-flavored Markdown (tables, task lists, strikethrough, bare links)
-- External links open in a new tab with `noopener noreferrer`
-- Plain CSS with CSS variables. No Tailwind needed, and it handles light and dark mode
-- About 1.7 KB gzipped JS and 1.4 KB gzipped CSS, plus `react-markdown`
+**[Demo](https://vatsal.xyz/astro-markdown-block/)** · **[Playground](https://vatsal.xyz/astro-markdown-block/playground/)** · **[Examples](https://vatsal.xyz/astro-markdown-block/examples/)** · **[API](https://vatsal.xyz/astro-markdown-block/api/)**
+
+![The same block in preview mode and in Markdown mode](https://raw.githubusercontent.com/trivedi-vatsal/astro-markdown-block/main/.github/preview.png)
+
+## Features
+
+- Rendered preview and raw source in one block
+- One-click copy of the original Markdown
+- GitHub Flavored Markdown: tables, task lists, strikethrough
+- Light and dark mode, restyled with CSS variables. No Tailwind needed
+- Your own remark and rehype plugins and custom renderers
+- Works in `.astro`, `.mdx`, and any React 18+ app
+- About 1.7 KB of JS and 1.4 KB of CSS gzipped, plus `react-markdown`
 
 ## Install
 
 ```sh
 npm install astro-markdown-block
-npx astro add react
+npx astro add react   # Astro only
 ```
-
-It's a React component, so Astro needs the `@astrojs/react` integration.
 
 ## Usage
 
-Import the Markdown with `?raw` to get the file as a string:
+### Astro and MDX
 
-```mdx
+```astro
+---
 import { MarkdownBlock } from 'astro-markdown-block'
 import 'astro-markdown-block/styles.css'
-import prompt from './prompt.md?raw'
+import notes from './notes.md?raw'
+---
 
-<MarkdownBlock client:visible title="Prompt" source={prompt} />
+<MarkdownBlock client:visible title="Notes" source={notes} />
 ```
 
-The buttons need a `client:*` directive to work. `client:visible` is the cheapest one for blocks below the fold.
+`?raw` loads the file as a string. `client:visible` turns on the buttons when the block scrolls into view. In `.mdx`, use the same imports without the `---` fences.
 
-It works the same in `.astro` files and in any React app.
+### React
+
+```tsx
+import { MarkdownBlock } from 'astro-markdown-block'
+import 'astro-markdown-block/styles.css'
+
+export function Notes({ source }: { source: string }) {
+  return <MarkdownBlock title="Notes" source={source} />
+}
+```
 
 ## Props
 
@@ -53,11 +71,11 @@ It works the same in `.astro` files and in any React app.
 
 `Part` is one of `root`, `toolbar`, `title`, `actions`, `button`, `body`, `preview`, `source`.
 
-Passing `remarkPlugins` or `rehypePlugins` replaces the defaults. To keep GFM, include `remark-gfm` in your list.
+Passing `remarkPlugins` or `rehypePlugins` replaces the defaults. To keep GFM, include `remark-gfm` in your list. Full descriptions are on the [API page](https://vatsal.xyz/astro-markdown-block/api/).
 
 ## Theming
 
-Set any `--amb-*` variable on a class and pass it as `className`:
+Set `--amb-*` variables on a class and pass it as `className`:
 
 ```css
 .brand {
@@ -68,40 +86,24 @@ Set any `--amb-*` variable on a class and pass it as `className`:
 }
 ```
 
-Variables: `--amb-bg`, `--amb-fg`, `--amb-muted`, `--amb-border`, `--amb-toolbar-bg`, `--amb-button-bg`, `--amb-button-hover`, `--amb-accent`, `--amb-accent-fg`, `--amb-code-bg`, `--amb-link`, `--amb-radius`, `--amb-font-sans`, `--amb-font-mono`.
-
-Dark mode follows `prefers-color-scheme`. If your site toggles a `.light`/`.dark` class or a `data-theme` attribute on `<html>`, the block follows that instead.
-
-Using Tailwind Typography? Style the preview with it instead:
-
-```tsx
-<MarkdownBlock
-  source={source}
-  classNames={{ preview: 'prose dark:prose-invert' }}
-/>
+```astro
+<MarkdownBlock client:visible className="brand" source={notes} />
 ```
+
+Dark mode follows `prefers-color-scheme`. If your site sets `.light`, `.dark`, or `data-theme` on `<html>`, the block follows that instead. Every variable is listed on the [API page](https://vatsal.xyz/astro-markdown-block/api/#variables).
+
+Using Tailwind Typography? Pass `classNames={{ preview: 'prose dark:prose-invert' }}`.
 
 ## Development
 
 ```sh
 pnpm install
-pnpm site:dev     # builds the package, then runs the demo site
-pnpm build        # package only
+pnpm site:dev   # builds the package, then runs the demo site
+pnpm build      # package only
 pnpm typecheck
 ```
 
-Requires Node 22.23.4 or later (see `.nvmrc`).
-
-## Publishing
-
-The first release has to be published from a machine that is logged in to npm, because npm will not create a brand new package from GitHub Actions:
-
-```sh
-npm login
-npm publish
-```
-
-After that, open the package on npmjs.com, go to Settings, Trusted Publisher, and allow `.github/workflows/publish.yml` from `trivedi-vatsal/astro-markdown-block`. Later releases are `git tag v0.2.0 && git push origin v0.2.0`.
+Needs Node 22.23.4 or later (see `.nvmrc`). Pushing a `v*` tag publishes to npm through GitHub Actions.
 
 ## License
 

@@ -1,0 +1,143 @@
+---
+import Icon from '../components/Icon.astro'
+import Layout from '../layouts/Layout.astro'
+import {
+  apiProps,
+  canonicalFor,
+  cssVariables,
+  homePath,
+  issuesUrl,
+  npmUrl,
+  packageDetails,
+  pkgInfo,
+  releasesUrl,
+  repoUrl,
+} from '../lib/site'
+
+if (!Astro.site) throw new Error('Set site in astro.config')
+
+const home = homePath()
+const pathname = `${home}api/`
+const canonical = canonicalFor(pathname, Astro.site)
+const title = `API — ${pkgInfo.name}`
+const description = `Props, CSS variables, and package details for ${pkgInfo.name}.`
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  current="api"
+>
+  <main id="main" class="wrap docs">
+    <header class="docs-hero">
+      <p class="eyebrow">API</p>
+      <h1>Props and CSS variables</h1>
+      <p class="lede">
+        Everything you can pass to <code>&lt;MarkdownBlock&gt;</code>, and every
+        variable you can set to restyle it.
+      </p>
+    </header>
+
+    <section class="section" id="api">
+      <h2>Props</h2>
+      <div class="table">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Prop</th>
+              <th scope="col">Type</th>
+              <th scope="col">Default</th>
+              <th scope="col">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {apiProps.map(([name, type, def, desc]) => (
+              <tr>
+                <td data-label="Prop">
+                  <code>{name}</code>
+                </td>
+                <td data-label="Type">
+                  <code>{type}</code>
+                </td>
+                <td data-label="Default">
+                  {def.includes(' ') || def === '—' || def === 'built-in' ? (
+                    def
+                  ) : (
+                    <code>{def}</code>
+                  )}
+                </td>
+                <td data-label="Description">{desc}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="note">
+        Passing <code>remarkPlugins</code> or <code>rehypePlugins</code>
+        replaces the defaults. Include <code>remark-gfm</code> in your list if
+        you still want GitHub-flavored Markdown. The types{' '}
+        <code>MarkdownBlockProps</code>, <code>MarkdownBlockLabels</code>, and{' '}
+        <code>MarkdownBlockPart</code> are exported.
+      </p>
+    </section>
+
+    <section class="section" id="variables">
+      <h2>CSS variables</h2>
+      <p class="section-lead">
+        Set these on a class and pass that class as <code>className</code>.
+      </p>
+      <div class="table">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Variable</th>
+              <th scope="col">Controls</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cssVariables.map(([name, desc]) => (
+              <tr>
+                <td data-label="Variable">
+                  <code>{name}</code>
+                </td>
+                <td data-label="Controls">{desc}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="package">
+      <h2>Package</h2>
+      <dl class="details">
+        {packageDetails.map(([term, value]) => (
+          <div>
+            <dt>{term}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+      <p class="note">
+        JavaScript and CSS sizes are measured from this package's built files.
+        React, react-markdown, remark-gfm, and rehype-external-links install
+        separately.
+      </p>
+      <p class="package-links">
+        <a href={npmUrl} target="_blank" rel="noopener noreferrer">
+          <Icon name="npm" /> npm
+        </a>
+        <a href={repoUrl} target="_blank" rel="noopener noreferrer">
+          <Icon name="github" /> Source
+        </a>
+        <a href={issuesUrl} target="_blank" rel="noopener noreferrer">
+          Issues
+        </a>
+        <a href={releasesUrl} target="_blank" rel="noopener noreferrer">
+          Releases
+        </a>
+      </p>
+    </section>
+  </main>
+</Layout>

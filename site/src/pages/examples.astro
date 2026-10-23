@@ -1,0 +1,112 @@
+---
+import { ExampleGallery } from '../components/ExampleGallery'
+import Layout from '../layouts/Layout.astro'
+import { brandCss, canonicalFor, homePath, pkgInfo } from '../lib/site'
+import gfm from '../samples/gfm.md?raw'
+import intro from '../samples/intro.md?raw'
+import prompt from '../samples/prompt.md?raw'
+import readme from '../samples/readme.md?raw'
+import release from '../samples/release.md?raw'
+
+if (!Astro.site) throw new Error('Set site in astro.config')
+
+const canonical = canonicalFor(`${homePath()}examples/`, Astro.site)
+const title = `Examples — ${pkgInfo.name}`
+const description = `${pkgInfo.name} used for prompts, READMEs, release notes, checklists, and custom themes.`
+
+const imports = (name: string, file: string) => `---
+import { MarkdownBlock } from 'astro-markdown-block'
+import 'astro-markdown-block/styles.css'
+import ${name} from './${file}?raw'
+---
+`
+
+const examples = [
+  {
+    id: 'prompt',
+    label: 'AI prompt',
+    title: 'Review prompt',
+    description:
+      'Start in source mode when the raw prompt is what people copy.',
+    source: prompt,
+    defaultMode: 'markdown' as const,
+    code: `${imports('prompt', 'prompt.md')}
+<MarkdownBlock
+  client:visible
+  title="Review prompt"
+  source={prompt}
+  defaultMode="markdown"
+/>`,
+  },
+  {
+    id: 'readme',
+    label: 'README',
+    title: 'README',
+    description: 'Read it as docs, copy it as Markdown.',
+    source: readme,
+    code: `${imports('readme', 'README.md')}
+<MarkdownBlock client:visible title="README" source={readme} />`,
+  },
+  {
+    id: 'release',
+    label: 'Release notes',
+    title: '0.1.0',
+    description: 'Version notes people can paste into a changelog.',
+    source: release,
+    code: `${imports('notes', 'release.md')}
+<MarkdownBlock client:visible title="0.1.0" source={notes} />`,
+  },
+  {
+    id: 'checklist',
+    label: 'Checklist',
+    title: 'Release checklist',
+    description: 'A list to read here, then copy into an issue or PR.',
+    source: intro,
+    code: `${imports('checklist', 'checklist.md')}
+<MarkdownBlock client:visible title="Release checklist" source={checklist} />`,
+  },
+  {
+    id: 'gfm',
+    label: 'Tables and tasks',
+    title: 'GFM',
+    description: 'Tables, task lists, and strikethrough come from remark-gfm.',
+    source: gfm,
+    code: `${imports('gfm', 'gfm.md')}
+<MarkdownBlock client:visible title="GFM" source={gfm} />`,
+  },
+  {
+    id: 'theme',
+    label: 'Custom theme',
+    title: 'Themed',
+    description: 'CSS variables on a class, plus custom button labels.',
+    source: prompt,
+    className: 'brand',
+    labels: { preview: 'Rendered', markdown: 'Raw' },
+    css: brandCss,
+    code: `${imports('prompt', 'prompt.md')}
+<MarkdownBlock
+  client:visible
+  className="brand"
+  title="Themed"
+  source={prompt}
+  labels={{ preview: 'Rendered', markdown: 'Raw' }}
+/>`,
+  },
+]
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  current="examples"
+>
+  <main id="main" class="wrap docs">
+    <header class="docs-hero">
+      <p class="eyebrow">Examples</p>
+      <h1>Common uses</h1>
+      <p class="lede">Pick one to see the block and the code that makes it.</p>
+    </header>
+    <ExampleGallery client:load examples={examples} />
+  </main>
+</Layout>

@@ -1,0 +1,37 @@
+---
+import { Code } from 'astro:components'
+
+interface Props {
+  id: string
+  code: string
+  lang: 'astro' | 'css' | 'mdx' | 'sh' | 'tsx'
+}
+
+const { id, code, lang } = Astro.props
+const sourceId = `${id}-source`
+---
+
+<div class="snippet">
+  <textarea
+    id={sourceId}
+    hidden
+    readonly
+    tabindex="-1"
+    aria-hidden="true"
+  >{code}</textarea>
+  <button
+    type="button"
+    class="copy-btn"
+    data-copy-target={sourceId}
+    aria-live="polite"
+  >
+    Copy
+  </button>
+  <Code
+    id={id}
+    code={code}
+    lang={lang}
+    themes={{ light: 'github-light', dark: 'github-dark' }}
+    defaultColor={false}
+  />
+</div>

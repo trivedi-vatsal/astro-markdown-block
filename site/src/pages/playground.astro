@@ -1,0 +1,43 @@
+---
+import { Playground } from '../components/Playground'
+import Layout from '../layouts/Layout.astro'
+import { brandCss, canonicalFor, homePath, pkgInfo } from '../lib/site'
+import basic from '../samples/basic.md?raw'
+import gfm from '../samples/gfm.md?raw'
+import intro from '../samples/intro.md?raw'
+import prompt from '../samples/prompt.md?raw'
+import readme from '../samples/readme.md?raw'
+
+if (!Astro.site) throw new Error('Set site in astro.config')
+
+const canonical = canonicalFor(`${homePath()}playground/`, Astro.site)
+const title = `Playground — ${pkgInfo.name}`
+const description = `Edit Markdown and see ${pkgInfo.name} update live, then copy the code.`
+
+const samples = [
+  { id: 'basic', label: 'Notes', source: basic },
+  { id: 'prompt', label: 'AI prompt', source: prompt },
+  { id: 'readme', label: 'README', source: readme },
+  { id: 'checklist', label: 'Release checklist', source: intro },
+  { id: 'gfm', label: 'Tables and tasks', source: gfm },
+]
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  current="playground"
+>
+  <main id="main" class="wrap docs">
+    <header class="docs-hero">
+      <p class="eyebrow">Playground</p>
+      <h1>Try it with your Markdown</h1>
+      <p class="lede">
+        Edit the Markdown and the block updates as you type. Copy the code when
+        you're happy with it.
+      </p>
+    </header>
+    <Playground client:load samples={samples} themeCss={brandCss} />
+  </main>
+</Layout>
