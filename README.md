@@ -94,17 +94,6 @@ Dark mode follows `prefers-color-scheme`. If your site sets `.light`, `.dark`, o
 
 Using Tailwind Typography? Pass `classNames={{ preview: 'prose dark:prose-invert' }}`.
 
-## Development
-
-```sh
-pnpm install
-pnpm site:dev   # builds the package, then runs the demo site
-pnpm build      # package only
-pnpm typecheck
-```
-
-Needs Node 22.23.4 or later (see `.nvmrc`). Pushing a `v*` tag publishes to npm through GitHub Actions.
-
 ## License
 
 MIT
